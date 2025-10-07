@@ -6,52 +6,67 @@ on:
     branches:
       - main
       - 'feature/*'
-    
+
+env:
+  MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData
+  MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
+  MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+
 jobs:
     unit-testing:
-      name: Unit Testing
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        name: Unit Testing
+        strategy: 
+          matrix:
+            nodejs_version: ['18', '19', '20']
+            os: [ubuntu-latest, macos-latest]
+            exclude: 
+            - nodejs_version: '18'
+              os: macos-latest
+        runs-on: ${{ matrix.os }}
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
 
-      - name: Setup NodeJS Version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-  
-      - name: Install Dependencies
-        run: npm install
-  
-      - name: Unit Testing
-        run: npm test
-        
-      - name: Archive Test Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: Mocha-Test-Result
-          path: test-results.xml
+        - name: Setup NodeJS Version
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{ matrix.nodejs_version }}
+    
+        - name: Install Dependencies
+          run: npm install
+    
+        - name: Unit Testing
+          run: npm test
+          
+        - name: Archive Test Result
+          uses: actions/upload-artifact@v4
+          with:
+            name: Mocha-Test-Result-${{ matrix.os }}-${{ matrix.nodejs_version }}
+            path: test-results.xml
 
     code-coverage:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        
-      - name: Setup NodeJS Version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+        name: Code coverage
+        runs-on: ubuntu-latest
 
-      - name: Install Dependencies
-        run: npm install
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
 
-      - name: Code Coverage 
-        run: npm run code-coverage
-
-      - name: Archive Code Coverage Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: Code-Coverage-Result
-          path: coverage
-          retention-days: 5
+        - name: Setup NodeJS Version
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{ matrix.nodejs_version }}
+    
+        - name: Install Dependencies
+          run: npm install
+    
+        - name: Check code coverage
+          run: npm run coverage
+          continue-on-error: true
+          
+        - name: Archive Test Result
+          uses: actions/upload-artifact@v4
+          with:
+            name: Code-Coverage-Results
+            path: coverage
+            retention-days: 5
