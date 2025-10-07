@@ -82,5 +82,5 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ maddiepka }}
+          username: ${{ github.actor }}
           password: ${{ secrets.KK_TOKEN }}
