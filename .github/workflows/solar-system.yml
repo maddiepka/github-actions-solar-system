@@ -71,11 +71,11 @@ jobs:
           retention-days: 5
 
     docker:
+      permissions:
+        packages: write
       runs-on: ubuntu-latest
       name: Docker
       needs: ['unit-testing', 'code-coverage']
-      permissions:
-        packages: write
       steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
