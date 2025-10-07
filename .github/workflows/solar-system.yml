@@ -72,7 +72,6 @@ jobs:
 
     docker:
       runs-on: ubuntu-latest
-      id: docker
       name: Docker
       needs: ['unit-testing', 'code-coverage']
       steps:
